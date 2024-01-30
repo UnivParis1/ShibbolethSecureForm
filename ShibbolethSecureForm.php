@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  *
  */
-class ShibbolethSecureForm extends PluginBase {
+class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
 
     protected $storage = 'DbStorage';
     static protected $description = 'Shibboleth Secure Form';
@@ -35,9 +35,7 @@ class ShibbolethSecureForm extends PluginBase {
         )
     );
 
-    public function __construct(PluginManager $manager, $id) {
-        parent::__construct($manager, $id);
-
+    public function init() {
         $this->subscribe('newSurveySettings');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('beforeSurveyPage');
