@@ -1,0 +1,25 @@
+<config>
+    <metadata>
+        <name>ShibbolethSecureForm</name>
+        <type>plugin</type>
+        <creationDate>2017-01-01</creationDate>
+        <lastUpdate>2024-02-05</lastUpdate>
+        <author>Etienne.Bohm@univ-paris1.fr</author>
+        <authorUrl>https://univ-paris1.fr</authorUrl>
+        <supportUrl>https://github.com/UnivParis1/ShibbolethSecureForm/issues</supportUrl>
+        <version>0.0.1</version>
+        <lastSecurityUpdate>0.0.1</lastSecurityUpdate>
+        <license>GNU General Public License version 2 or later</license>
+        <description><![CDATA[LimeSurvey Shibboleth survey auth plugin.]]></description>
+    </metadata>
+
+    <compatibility>
+        <version>6.0</version>
+        <version>5.0</version>
+        <version>4.0</version>
+        <version>3.0</version>
+    </compatibility>
+
+    <updaters disabled="disabled">
+    </updaters>
+</config>
