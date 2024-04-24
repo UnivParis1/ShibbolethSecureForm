@@ -4,52 +4,60 @@ LimeSurvey 2.05+ Secure form access by Shibboleth
 
 LimeSurvey: http://www.limesurvey.org/en/
 
+# Description
+
 Le plugin permet une authentification Shibboleth au niveau du formulaire.
 
 Il utilise la possibilité de Lazy Session de Shibboleth
 
+# Configuration:
 
+## Apache :
 
-Configuration:
-
-Apache :
-
-Le module apache mod_shib doit être installé et configuré sur le serveur
+> [!IMPORTANT]
+> Le module apache *** mod_shib *** doit être installé et configuré sur le serveur
 
 La directive suivante doit être renseignée sur le vhost site
 
+
+```
 <Location />
 AuthType shibboleth
 ShibRequestSetting requireSession false
 ShibUseHeaders On
 Require shibboleth
 </Location>
+```
 
-Explication: la directive "requireSession false" permet d'avoir un accès potentiellement Shibbolétisé tout en ne bloquant pas l'accès aux formulaires qui ne font pas appel à l'authentification Shibboleth
+1. ** Explication: **
+- la directive _"requireSession false"_ permet d'avoir un accès potentiellement Shibbolétisé
+- tout en ne bloquant pas l'accès aux formulaires qui ne font pas appel à l'authentification Shibboleth
 
-Limesurvey filesystem :
+## Limesurvey filesystem
 
-Copier le fichier ShibbolethSecureForm dans le répertoire plugins de Limesurvey :
+1. Copier le fichier ShibbolethSecureForm dans le répertoire plugins de Limesurvey :
 
-www/plugins/ShibbolethSecureForm.php
+- www/plugins/ShibbolethSecureForm.php
 
-Interface limesurvey admin :
+## Interface limesurvey /admin
 
-Configuration Globale :
+Ci dessous, la configuration frontend depuis l'interface admin de Limesurvey
 
-Dans configuration -> Paramètres -> Gestionnaire d'extensions -> ShibbolethSecureForm
+### Configuration Globale :
 
-Label : "URL that make the Shibboleth authentification and return the headers to the referrer":
+_Dans configuration -> Paramètres -> Gestionnaire d'extensions -> ShibbolethSecureForm_
 
-ShibbolethSecureFormUrlAuth => doit être de type https://HOST_LIMESURVEY/Shibboleth.sso/Login?target=
+1. ** Label **
+- _"URL that make the Shibboleth authentification and return the headers to the referrer"_:
 
-Cette url sert de point d'entrée pour l'authentification.
+2. ** ShibbolethSecureFormUrlAuth ** => doit être de type ``` https://HOST_LIMESURVEY/Shibboleth.sso/Login?target= ```
+- Cette url sert de point d'entrée pour l'authentification.
 le HOST doit être le même que Limesurvey.
 
 
-Configuration du formulaire :
+### Configuration du formulaire :
 
 Une fois le formulaire définit, dans les paramètres du formulaire :
 
-Extensions simples -> ShibbolethSecureForm
-"Secure the form by a Shibboleth Authentification" : booléen d'activation du plugin
+1. ** Extensions simples ** -> ShibbolethSecureForm
+- _"Secure the form by a Shibboleth Authentification"_ => ** booléen d'activation du plugin **
