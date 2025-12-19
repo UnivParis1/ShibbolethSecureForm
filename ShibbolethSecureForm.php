@@ -88,6 +88,21 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
                     'label' => 'Shibboleth Domain Authorized',
                     'current' => $this->get('ShibbolethDomain', 'Survey', $event->get('survey'), $ShibbolethDefaultDomain)
                 ),
+                'ShibbolethFilterAttribute' => array(
+                    'type' => 'select',
+                    'label' => "Attribut shibboleth utilisé pour filtrer l'accès",
+                            'options' => array(
+                            'null' => 'Aucun',
+                            'unscoped-affiliation' => 'unscoped-affiliation',
+                        ),
+                    'current' => $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('survey'), 'null')
+                    ),
+                'ShibbolethFilterText' => array(
+                    'type' => 'text',
+                    'label' => 'Filtrage sur ces valeurs',
+                    'help' => 'Si plusieurs valeurs, les mettres sur plusieurs lignes',
+                    'current' => $this->get('ShibbolethFilterText', 'Survey', $event->get('survey'), 'null')
+                ),
             )
         ));
     }
@@ -133,6 +148,34 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
         if (array_search($domain, $domainsShib) === false) {
             throw new CHttpException(401, 'Wrong credentials for this survey.');
         }
+
+        $ShibbolethFilterAttribute = $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('surveyId'));
+
+        if ($ShibbolethFilterAttribute == 'null') {
+            return;
+        }
+
+        if ( ! isset($_SERVER[$ShibbolethFilterAttribute]) )
+            throw new CHttpException(500, "Erreur configuration plugin ShibbolethSecureForm, l'attribut $ShibbolethFilterAttribute n'existe pas dans les variables serveur, veuillez contacter la DSIUN");
+
+        $attribute = $_SERVER["unscoped-affiliation"];
+        $ShibbolethFilterText = $this->get('ShibbolethFilterText', 'Survey', $event->get('surveyId'));
+
+        if (strlen($ShibbolethFilterText) == 0)
+            return;
+
+        $filterValues = preg_split('/\r\n|\r|\n/', $ShibbolethFilterText);
+
+        $test = false;
+        foreach ($filterValues as $value) {
+            if (str_contains($attribute, $value)) {
+                $test = true;
+            }
+        }
+
+        if (!$test)
+            throw new CHttpException(401, 'Wrong credentials for this survey.');
+
     }
 
 }
