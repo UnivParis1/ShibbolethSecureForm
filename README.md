@@ -15,6 +15,7 @@ Il utilise la possibilité de Lazy Session de Shibboleth
 ## Apache :
 
 > [!IMPORTANT]
+> Shibboleth doit être fonctionnel, l'application doit être déclaré auprès du fournisseur d'identité
 > Le module apache *** mod_shib *** doit être installé et configuré sur le serveur
 
 La directive suivante doit être renseignée sur le vhost site
@@ -32,12 +33,6 @@ Require shibboleth
 1. ** Explication: **
 - la directive _"requireSession false"_ permet d'avoir un accès potentiellement Shibbolétisé
 - tout en ne bloquant pas l'accès aux formulaires qui ne font pas appel à l'authentification Shibboleth
-
-## Limesurvey filesystem
-
-1. Copier le fichier ShibbolethSecureForm dans le répertoire plugins de Limesurvey :
-
-- www/plugins/ShibbolethSecureForm.php
 
 ## Interface limesurvey /admin
 
