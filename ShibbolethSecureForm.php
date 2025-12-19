@@ -101,7 +101,7 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
                     'type' => 'text',
                     'label' => 'Filtrage sur ces valeurs',
                     'help' => 'Si plusieurs valeurs, les mettres sur plusieurs lignes',
-                    'current' => $this->get('ShibbolethFilterText', 'Survey', $event->get('survey'), 'null')
+                    'current' => $this->get('ShibbolethFilterText', 'Survey', $event->get('survey'), '')
                 ),
             )
         ));
@@ -158,7 +158,7 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
         if ( ! isset($_SERVER[$ShibbolethFilterAttribute]) )
             throw new CHttpException(500, "Erreur configuration plugin ShibbolethSecureForm, l'attribut $ShibbolethFilterAttribute n'existe pas dans les variables serveur, veuillez contacter la DSIUN");
 
-        $attribute = $_SERVER["unscoped-affiliation"];
+        $attribute = $_SERVER[$ShibbolethFilterAttribute];
         $ShibbolethFilterText = $this->get('ShibbolethFilterText', 'Survey', $event->get('surveyId'));
 
         if (strlen($ShibbolethFilterText) == 0)
