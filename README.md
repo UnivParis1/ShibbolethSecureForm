@@ -56,3 +56,10 @@ Une fois le formulaire définit, dans les paramètres du formulaire :
 
 1. ** Extensions simples ** -> ShibbolethSecureForm
 - _"Secure the form by a Shibboleth Authentification"_ => ** booléen d'activation du plugin **
+
+### Paramètres de l’extension ShibbolethSecureForm
+
+Dans la configuration du formulaire, il y'a 2 paramètres à configurer :
+
+- __Secure the form by a Shibboleth Authentification__ : utiliser ou non le plugin, si no/non, le plugin n'est pas pris en compte pour ce formulaire (mis par défaut)
+- __Shibboleth Domain Authorized__ : obligatoire si le plugin est activé: le domaine unique sur lequel faire un filtre du nom de domaine. L'attribut Shib vérifié est: eppn
