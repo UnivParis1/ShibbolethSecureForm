@@ -151,7 +151,7 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
 
         $ShibbolethFilterAttribute = $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('surveyId'));
 
-        if ($ShibbolethFilterAttribute == 'null') {
+        if ($ShibbolethFilterAttribute == null || $ShibbolethFilterAttribute == 'null') {
             return;
         }
 
