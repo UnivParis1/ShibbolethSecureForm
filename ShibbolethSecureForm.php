@@ -19,7 +19,8 @@
  * GNU General Public License for more details.
  *
  */
-class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
+class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase
+{
 
     protected $storage = 'DbStorage';
     static protected $description = 'Shibboleth Secure Form';
@@ -35,13 +36,15 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
         )
     );
 
-    public function init() {
+    public function init()
+    {
         $this->subscribe('newSurveySettings');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('beforeSurveyPage');
     }
 
-    public function beforeSurveySettings() {
+    public function beforeSurveySettings()
+    {
         $ShibbolethSecureFormUrlAuth = $this->get('ShibbolethSecureFormUrlAuth', null, null, null);
         $ShibbolethDefaultDomain = $this->get('ShibbolethDefaultDomain', null, null, null);
 
@@ -80,7 +83,9 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
                     ),
                     'label' => 'Secure the form by a Shibboleth Authentification',
                     'current' => $this->get(
-                            'ShibbolethSurvey', 'Survey', $event->get('survey')
+                        'ShibbolethSurvey',
+                        'Survey',
+                        $event->get('survey')
                     ),
                 ),
                 'ShibbolethDomain' => array(
@@ -91,31 +96,44 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
                 'ShibbolethFilterAttribute' => array(
                     'type' => 'select',
                     'label' => "Attribut shibboleth utilisé pour filtrer l'accès",
-                            'options' => array(
-                            'null' => 'Aucun',
-                            'unscoped-affiliation' => 'unscoped-affiliation',
-                        ),
-                    'current' => $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('survey'), 'null')
+                    'options' => array(
+                        'null' => 'Aucun',
+                        'unscoped-affiliation' => 'unscoped-affiliation',
                     ),
-                'ShibbolethFilterText' => array(
-                    'type' => 'text',
-                    'label' => 'Filtrage sur ces valeurs',
-                    'help' => 'Si plusieurs valeurs, les mettres sur plusieurs lignes',
-                    'current' => $this->get('ShibbolethFilterText', 'Survey', $event->get('survey'), '')
+                    'current' => $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('survey'), 'null')
                 ),
+                'ShibbolethFilterValues' => array(
+                    'type' => 'select',
+                    'htmlOptions' => array(
+                        'multiple' => true,
+                        'unselectValue' => ''
+                    ),
+                    'label' => 'Filtrage sur les valeurs suivantes',
+                    'help' => 'Valeurs sur lesquelles filtrer les participants',
+                    'options' => array(
+                        'staff' => 'staff',
+                        'faculty' => 'faculty',
+                        'teacher' => 'teacher',
+                        'researcher' => 'researcher',
+                        'emeritu' => 'emeritu'
+                    ),
+                    'current' => $this->get('ShibbolethFilterValues', 'Survey', $event->get('survey'), '')
+                )
             )
         ));
     }
 
     //28/Jan/2015: To be honest,  I have NO idea what this function does. It's not documented anywhere, but after a lot of trial and error I discovered it _IS NECESSARY_ for any per-survey settings to actually hold. Todo: Perhaps this should be integrated into the core?    
-    public function newSurveySettings() {
+    public function newSurveySettings()
+    {
         $event = $this->getEvent();
         foreach ($event->get('settings') as $name => $value) {
             $this->set($name, $value, 'Survey', $event->get('survey'));
         }
     }
 
-    public function beforeSurveyPage() {
+    public function beforeSurveyPage()
+    {
         $event = $this->getEvent();
 
         $isSurveyShib = $this->get('ShibbolethSurvey', 'Survey', $event->get('surveyId'));
@@ -144,7 +162,6 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
         $eppns = explode('@', $_SERVER['eppn']);
 
         $domain = $eppns[1];
-
         if (array_search($domain, $domainsShib) === false) {
             throw new CHttpException(401, 'Wrong credentials for this survey.');
         }
@@ -155,27 +172,24 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase {
             return;
         }
 
-        if ( ! isset($_SERVER[$ShibbolethFilterAttribute]) )
+        if (! isset($_SERVER[$ShibbolethFilterAttribute])) {
             throw new CHttpException(500, "Erreur configuration plugin ShibbolethSecureForm, l'attribut $ShibbolethFilterAttribute n'existe pas dans les variables serveur, veuillez contacter la DSIUN");
+        }
 
         $attribute = $_SERVER[$ShibbolethFilterAttribute];
-        $ShibbolethFilterText = $this->get('ShibbolethFilterText', 'Survey', $event->get('surveyId'));
-
-        if (strlen($ShibbolethFilterText) == 0)
-            return;
-
-        $filterValues = preg_split('/\r\n|\r|\n/', $ShibbolethFilterText);
+        $ShibbolethFilterValues = $this->get('ShibbolethFilterValues', 'Survey', $event->get('surveyId'));
 
         $test = false;
-        foreach ($filterValues as $value) {
-            if (str_contains($attribute, $value)) {
-                $test = true;
+        if (is_array($ShibbolethFilterValues) && count($ShibbolethFilterValues) > 0) {
+            foreach ($ShibbolethFilterValues as $value) {
+                if (str_contains($attribute, $value)) {
+                    $test = true;
+                }
             }
         }
 
-        if (!$test)
+        if (!$test) {
             throw new CHttpException(401, 'Wrong credentials for this survey.');
-
+        }
     }
-
 }
