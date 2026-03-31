@@ -88,19 +88,15 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase
                         $event->get('survey')
                     ),
                 ),
-                'ShibbolethDomain' => array(
-                    'type' => 'string',
-                    'label' => 'Shibboleth Domain Authorized',
-                    'current' => $this->get('ShibbolethDomain', 'Survey', $event->get('survey'), $ShibbolethDefaultDomain)
-                ),
                 'ShibbolethFilterAttribute' => array(
                     'type' => 'select',
                     'label' => "Attribut shibboleth utilisé pour filtrer l'accès",
                     'options' => array(
                         'null' => 'Aucun',
+                        'affiliation' => 'affiliation',
                         'unscoped-affiliation' => 'unscoped-affiliation',
                     ),
-                    'current' => $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('survey'), 'null')
+                    'current' => $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('survey'), 'affiliation')
                 ),
                 'ShibbolethFilterValues' => array(
                     'type' => 'select',
@@ -117,7 +113,7 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase
                         'researcher' => 'researcher',
                         'emeritu' => 'emeritu'
                     ),
-                    'current' => $this->get('ShibbolethFilterValues', 'Survey', $event->get('survey'), '')
+                    'current' => $this->get('ShibbolethFilterValues', 'Survey', $event->get('survey'), array('staff', 'faculty'))
                 )
             )
         ));
@@ -127,9 +123,8 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase
     public function newSurveySettings()
     {
         $event = $this->getEvent();
-        foreach ($event->get('settings') as $name => $value) {
+        foreach ($event->get('settings') as $name => $value)
             $this->set($name, $value, 'Survey', $event->get('survey'));
-        }
     }
 
     public function beforeSurveyPage()
@@ -138,9 +133,8 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase
 
         $isSurveyShib = $this->get('ShibbolethSurvey', 'Survey', $event->get('surveyId'));
 
-        if (!$isSurveyShib) {
+        if (!$isSurveyShib)
             return;
-        }
 
         $urlAuthShib = $this->get('ShibbolethSecureFormUrlAuth', null, null);
 
@@ -157,39 +151,33 @@ class ShibbolethSecureForm extends \LimeSurvey\PluginManager\PluginBase
             Yii::app()->request->redirect($redirectUrl);
         }
 
-        $domainsShib = explode(';', $this->get('ShibbolethDomain', 'Survey', $event->get('surveyId')));
-
         $eppns = explode('@', $_SERVER['eppn']);
 
-        $domain = $eppns[1];
-        if (array_search($domain, $domainsShib) === false) {
+        $ShibbolethDefaultDomain = $this->get('ShibbolethDefaultDomain', null, null, null);
+        if (!$ShibbolethDefaultDomain)
+            throw new CHttpException(500, 'Error configuration: default domain realm not configured, please contact administrator');
+
+        if ($eppns[1] != $ShibbolethDefaultDomain)
             throw new CHttpException(401, 'Wrong credentials for this survey.');
-        }
 
         $ShibbolethFilterAttribute = $this->get('ShibbolethFilterAttribute', 'Survey', $event->get('surveyId'));
 
-        if ($ShibbolethFilterAttribute == null || $ShibbolethFilterAttribute == 'null') {
+        if ($ShibbolethFilterAttribute == null || $ShibbolethFilterAttribute == 'null')
             return;
-        }
 
-        if (! isset($_SERVER[$ShibbolethFilterAttribute])) {
+        if (! isset($_SERVER[$ShibbolethFilterAttribute]))
             throw new CHttpException(500, "Erreur configuration plugin ShibbolethSecureForm, l'attribut $ShibbolethFilterAttribute n'existe pas dans les variables serveur, veuillez contacter la DSIUN");
-        }
 
         $attribute = $_SERVER[$ShibbolethFilterAttribute];
         $ShibbolethFilterValues = $this->get('ShibbolethFilterValues', 'Survey', $event->get('surveyId'));
 
         $test = false;
-        if (is_array($ShibbolethFilterValues) && count($ShibbolethFilterValues) > 0) {
-            foreach ($ShibbolethFilterValues as $value) {
-                if (str_contains($attribute, $value)) {
+        if (is_array($ShibbolethFilterValues) && count($ShibbolethFilterValues) > 0)
+            foreach ($ShibbolethFilterValues as $value)
+                if (str_contains($attribute, $value))
                     $test = true;
-                }
-            }
-        }
 
-        if (!$test) {
+        if (!$test)
             throw new CHttpException(401, 'Wrong credentials for this survey.');
-        }
     }
 }
